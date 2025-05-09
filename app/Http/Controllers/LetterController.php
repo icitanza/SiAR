@@ -329,34 +329,28 @@ class LetterController extends Controller
     {
         $letter = Letter::findOrFail($id);
 
-        // if (!$letter->letter_path || !Storage::disk('public')->exists($letter->letter_path)) {
-        //     abort(404, 'File tidak ditemukan');
-        // }
-    
-        // return Storage::disk('public')->download($letter->letter_path);
-
         if (!$letter->letter_path) {
             abort(404, 'File tidak ditemukan');
         }
-    
+
         // Ambil URL file dari Supabase
         $fileUrl = $this->supabase->getFileUrl($letter->letter_path);
-    
-        // Gunakan curl untuk mendownload file dari URL Supabase
-        $fileContents = file_get_contents($fileUrl);
-        if (!$fileContents) {
+
+        // Gunakan file_get_contents untuk mendownload isi file
+        $fileContents = @file_get_contents($fileUrl);
+        if ($fileContents === false) {
             abort(404, 'File tidak ditemukan di Supabase');
         }
-    
-        // Tentukan nama file untuk didownload
+
+        // Tentukan nama file
         $fileName = basename($letter->letter_path);
-    
-        // Kembalikan response stream untuk mendownload file
-        return response()->streamDownload(function () use ($fileContents) {
-            echo $fileContents;
-        }, $fileName);
+
+        // Paksa download dengan header yang benar
+        return response($fileContents, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
     }
-    
 
     /**
      * Remove the specified resource from storage.
