@@ -113,7 +113,47 @@ class LettersDataTable extends DataTable
                         'responsive' => true,
                         'autoWidth' => false,
                         'language' => [
-                            'url' => asset('js/id.json'),
+                            'emptyTable' => 'Tidak ada data yang tersedia pada tabel ini',
+                            'info' => 'Menampilkan _START_ sampai _END_ dari _TOTAL_ entri',
+                            'infoEmpty' => 'Menampilkan 0 sampai 0 dari 0 entri',
+                            'infoFiltered' => '(disaring dari _MAX_ entri keseluruhan)',
+                            'lengthMenu' => 'Tampilkan _MENU_ entri',
+                            'loadingRecords' => 'Sedang memuat...',
+                            'processing' => 'Sedang memproses...',
+                            'search' => 'Cari..',
+                            'searchPlaceholder' => 'Cari surat...',
+                            'zeroRecords' => 'Tidak ditemukan data yang sesuai',
+                            'thousands' => "'",
+                            'paginate' => [
+                                'first' => 'Pertama',
+                                'last' => 'Terakhir',
+                                'next' => '>',
+                                'previous' => '<'
+                            ],
+                            'aria' => [
+                                'sortAscending' => ': aktifkan untuk mengurutkan kolom ke atas',
+                                'sortDescending' => ': aktifkan untuk mengurutkan kolom menurun'
+                            ],
+                            'buttons' => [
+                                'collection' => "Kumpulan <span class='ui-button-icon-primary ui-icon ui-icon-triangle-1-s'/>",
+                                'colvis' => 'Visibilitas Kolom',
+                                'colvisRestore' => 'Kembalikan visibilitas',
+                                'copy' => 'Salin',
+                                'csv' => 'CSV',
+                                'excel' => 'Excel',
+                                'pageLength' => [
+                                    '-1' => 'Tampilkan semua baris',
+                                    '_' => 'Tampilkan %d baris'
+                                ],
+                                'pdf' => 'PDF',
+                                'print' => 'Cetak',
+                                'copySuccess' => [
+                                    '1' => '1 baris disalin ke papan klip',
+                                    '_' => '%d baris disalin ke papan klip'
+                                ],
+                                'copyTitle' => 'Salin ke Papan klip',
+                                'copyKeys' => 'Tekan ctrl atau u2318 + C untuk menyalin tabel ke papan klip.<br/><br/>Untuk membatalkan, klik pesan ini atau tekan esc.'
+                            ],
                             'searchPlaceholder' => 'Cari surat...',
                             'search' => '' // menghilangkan label "Search:"
                         ],
