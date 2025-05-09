@@ -5,12 +5,19 @@ namespace App\Http\Controllers;
 use App\DataTables\LettersDataTable;
 use App\Http\Requests\LetterRequest;
 use App\Models\Letter;
+use App\Services\SupabaseService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class LetterController extends Controller
 {
+    protected $supabase;
+
+    public function __construct(SupabaseService $supabase)
+    {
+        $this->supabase = $supabase;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -42,12 +49,12 @@ class LetterController extends Controller
         }
     
         if ($request->filled('filterBulan')) {
-            $query->whereMonth('letter_date', $request->filterBulan);
-        }
+            $query->whereRaw('EXTRACT(MONTH FROM letter_date) = ?', [$request->filterBulan]);
+        }        
     
         if ($request->filled('filterTahun')) {
-            $query->whereYear('letter_date', $request->filterTahun);
-        }
+            $query->whereRaw('EXTRACT(YEAR FROM letter_date) = ?', [$request->filterTahun]);
+        }        
         
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
@@ -80,10 +87,28 @@ class LetterController extends Controller
         // dd($request->all());
         $request->validated();
 
+        // if ($request->hasFile('file')) {
+        //     $filePath = $request->file('file')->store('letters', 'public');
+        // } else {
+        //     $filePath = null;
+        // }
         if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('letters', 'public');
-        } else {
-            $filePath = null;
+            $file = $request->file('file');
+    
+            // Buat nama file unik
+            $uniqueName = uniqid('letter_') . '.' . $file->getClientOriginalExtension();
+    
+            // Path dalam bucket Supabase (misal folder "letters/")
+            $storagePath = 'letters/' . $uniqueName;
+    
+            // Upload ke Supabase via service
+            $uploadedPath = $this->supabase->uploadFile($file, $storagePath);
+    
+            if ($uploadedPath) {
+                $filePath = $uploadedPath; // Simpan path untuk database
+            } else {
+                return back()->withErrors(['file' => 'Gagal mengunggah file ke Supabase.']);
+            }
         }
 
         $letter = Letter::create([
@@ -116,11 +141,11 @@ class LetterController extends Controller
         $query = Letter::query();
     
         if ($request->filled('filterBulan')) {
-            $query->whereMonth('letter_date', $request->filterBulan);
+            $query->whereRaw('EXTRACT(MONTH FROM letter_date) = ?', [$request->filterBulan]);
         }
     
         if ($request->filled('filterTahun')) {
-            $query->whereYear('letter_date', $request->filterTahun);
+            $query->whereRaw('EXTRACT(YEAR FROM letter_date) = ?', [$request->filterTahun]);
         }
         
         if ($request->filled('search')) {
@@ -173,12 +198,12 @@ class LetterController extends Controller
 
         // Filter bulan dan tahun jika bukan "all"
         if ($month !== 'all') {
-            $queryBase->whereMonth('letter_date', $month);
-        }
+            $queryBase->whereRaw('EXTRACT(MONTH FROM letter_date) = ?', [$month]);
+        }        
     
         if ($year !== 'all') {
-            $queryBase->whereYear('letter_date', $year);
-        }
+            $queryBase->whereRaw('EXTRACT(YEAR FROM letter_date) = ?', [$year]);
+        }        
     
         if ($type === 'masuk') {
             $title = (clone $queryBase)
@@ -229,14 +254,34 @@ class LetterController extends Controller
         $letter = Letter::findOrFail($id);
         $filePath = $letter->letter_path; // default: path lama
     
+        // if ($request->hasFile('file')) {
+        //     // Hapus file lama jika ada
+        //     if ($filePath && Storage::disk('public')->exists($filePath)) {
+        //         Storage::disk('public')->delete($filePath);
+        //     }
+    
+        //     // Simpan file baru
+        //     $filePath = $request->file('file')->store('letters', 'public');
+        // }
+
         if ($request->hasFile('file')) {
-            // Hapus file lama jika ada
-            if ($filePath && Storage::disk('public')->exists($filePath)) {
-                Storage::disk('public')->delete($filePath);
+            // Hapus file lama dari Supabase jika ada
+            if ($filePath) {
+                $this->supabase->deleteFile($filePath); // Hapus file lama dari Supabase
             }
     
-            // Simpan file baru
-            $filePath = $request->file('file')->store('letters', 'public');
+            // Buat nama file unik dan simpan ke Supabase
+            $file = $request->file('file');
+            $uniqueName = uniqid('letter_') . '.' . $file->getClientOriginalExtension();
+            $storagePath = 'letters/' . $uniqueName;
+    
+            $uploadedPath = $this->supabase->uploadFile($file, $storagePath);
+    
+            if ($uploadedPath) {
+                $filePath = $uploadedPath; // Simpan path baru untuk database
+            } else {
+                return back()->withErrors(['file' => 'Gagal mengunggah file ke Supabase.']);
+            }
         }
     
         $letter->update([
@@ -257,11 +302,31 @@ class LetterController extends Controller
     {
         $letter = Letter::findOrFail($id);
 
-        if (!$letter->letter_path || !Storage::disk('public')->exists($letter->letter_path)) {
+        // if (!$letter->letter_path || !Storage::disk('public')->exists($letter->letter_path)) {
+        //     abort(404, 'File tidak ditemukan');
+        // }
+    
+        // return Storage::disk('public')->download($letter->letter_path);
+
+        if (!$letter->letter_path) {
             abort(404, 'File tidak ditemukan');
         }
     
-        return Storage::disk('public')->download($letter->letter_path);
+        // Ambil URL file dari Supabase
+        $fileUrl = $this->supabase->getFileUrl($letter->letter_path);
+    
+        // Gunakan curl untuk mendownload file dari URL Supabase
+        $fileContents = file_get_contents($fileUrl);
+        if (!$fileContents) {
+            abort(404, 'File tidak ditemukan di Supabase');
+        }
+    
+        // Tentukan nama file untuk didownload
+        $fileName = basename($letter->letter_path);
+    
+        return response($fileContents)
+            ->header('Content-Type', mime_content_type($fileUrl))
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
     }
     
 

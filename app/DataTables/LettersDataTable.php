@@ -38,7 +38,7 @@ class LettersDataTable extends DataTable
             // Menambahkan kolom aksi dengan tombol edit dan delete.
             $editUrl = route('letter.form', $user->id);
             $deleteUrl = route('letter.destroy', $user->id);
-            $fileURL = 'storage/' . $user->letter_path;
+            $fileURL = 'https://okqbhupontsalxjdbdyy.supabase.co/storage/v1/object/public/siar/upload/' . $user->letter_path;
             $csrf = csrf_field();
             $method = method_field('DELETE');
 

@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $minYear = DB::table('letters')->min(DB::raw('YEAR(letter_date)'));
-    $maxYear = DB::table('letters')->max(DB::raw('YEAR(letter_date)'));
+    $minYear = DB::table('letters')->min(DB::raw('CAST(EXTRACT(YEAR FROM letter_date) AS INTEGER)'));
+    $maxYear = DB::table('letters')->max(DB::raw('CAST(EXTRACT(YEAR FROM letter_date) AS INTEGER)'));
     return view('dashboard', compact(['minYear', 'maxYear']));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -37,10 +37,10 @@ Route::post('/process-scan', [QrController::class, 'processScan'])->name('qr.pro
 
 
 Route::get('/api/chart_data_bulanan', function (Request $request) {
-    $tahun = $request->get('tahun', now()->year); // default ke tahun sekarang jika tidak dikirim
+    $tahun = $request->get('tahun', now()->year);
 
-    $data = Letter::selectRaw('MONTH(letter_date) as bulan, type, COUNT(*) as total')
-        ->whereYear('letter_date', $tahun)
+    $data = Letter::selectRaw('EXTRACT(MONTH FROM letter_date) as bulan, type, COUNT(*) as total')
+        ->whereRaw('EXTRACT(YEAR FROM letter_date) = ?', [$tahun])
         ->groupBy('bulan', 'type')
         ->get();
 
@@ -48,14 +48,16 @@ Route::get('/api/chart_data_bulanan', function (Request $request) {
     $suratKeluar = array_fill(1, 12, 0);
 
     foreach ($data as $item) {
+        $bulan = (int)$item->bulan; // pastikan bulan jadi integer untuk index array
         if ($item->type === 'masuk') {
-            $suratMasuk[$item->bulan] = $item->total;
+            $suratMasuk[$bulan] = $item->total;
         } elseif ($item->type === 'keluar') {
-            $suratKeluar[$item->bulan] = $item->total;
+            $suratKeluar[$bulan] = $item->total;
         }
     }
+
     $totalSemua = Letter::count();
-    $totalTahunIni = Letter::whereYear('letter_date', $tahun)->count();
+    $totalTahunIni = Letter::whereRaw('EXTRACT(YEAR FROM letter_date) = ?', [$tahun])->count();
 
     return response()->json([
         'labels' => [
@@ -81,5 +83,6 @@ Route::get('/api/chart_data_bulanan', function (Request $request) {
         ]
     ]);
 })->middleware(['auth', 'verified'])->name('chart_data_bulanan');
+
 
 require __DIR__.'/auth.php';
