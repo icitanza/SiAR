@@ -16,50 +16,6 @@
 
 @push('scripts')
     {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
-    {{-- <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(function () {
-                $('#custom-filter').html(`
-                    <div class="d-flex gap-2 align-items-center">
-                        <select id="filterBulan" class="select2 form-select" style="max-width: 150px;">
-                            <option value="">Semua Bulan</option>
-                            <option value="-01-">Januari</option>
-                            <option value="-02-">Februari</option>
-                            <option value="-03-">Maret</option>
-                            <option value="-04-">April</option>
-                            <option value="-05-">Mei</option>
-                            <option value="-06-">Juni</option>
-                            <option value="-07-">Juli</option>
-                            <option value="-08-">Agustus</option>
-                            <option value="-09-">September</option>
-                            <option value="-10-">Oktober</option>
-                            <option value="-11-">November</option>
-                            <option value="-12-">Desember</option>
-                        </select>
-
-                        <select id="filterTahun" class="select2 form-select" style="max-width: 150px;">
-                            <option value="">Semua Tahun</option>
-                            @for ($i = date('Y'); $i >= 2020; $i--)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                `);
-
-                function applyFilter() {
-                    const bulan = $('#filterBulan').val();
-                    const tahun = $('#filterTahun').val();
-                    const regex = tahun && bulan ? `${tahun}${bulan}` :
-                                  tahun ? `^${tahun}` :
-                                  bulan ? `${bulan}` : '';
-
-                    $('#letters-table').DataTable().column(2).search(regex, true, false).draw();
-                }
-
-                $('#filterBulan, #filterTahun').on('change', applyFilter);
-            }, 500);
-        });
-    </script> --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {

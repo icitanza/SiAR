@@ -207,39 +207,39 @@ class LetterController extends Controller
     
         if ($type === 'masuk') {
             $title = (clone $queryBase)
-                ->whereRaw("CONCAT(?, '-', REPLACE(LOWER(letter_from), ' ', '')) = ?", [$type, $id])
+                ->whereRaw("CONCAT(CAST(? AS TEXT), '-', REPLACE(LOWER(letter_from), ' ', '')) = ?", [$type, $id])
                 ->first()
                 ->letter_from ?? 'Tidak diketahui';
-    
+        
             $data = (clone $queryBase)
-                ->whereRaw("CONCAT(?, '-', REPLACE(LOWER(letter_from), ' ', '')) = ?", [$type, $id])
+                ->whereRaw("CONCAT(CAST(? AS TEXT), '-', REPLACE(LOWER(letter_from), ' ', '')) = ?", [$type, $id])
                 ->paginate(10)
                 ->onEachSide(5);
-    
+        
             if ($data->count() == 0) {
                 $data = (clone $queryBase)
-                    ->whereRaw("CONCAT(?, '-', REPLACE(LOWER(letter_send_to), ' ', '')) = ?", [$type, $id])
+                    ->whereRaw("CONCAT(CAST(? AS TEXT), '-', REPLACE(LOWER(letter_send_to), ' ', '')) = ?", [$type, $id])
                     ->paginate(10)
                     ->onEachSide(5);
             }
         } else {
             $title = Letter::where('type', $type)
-                ->whereRaw("CONCAT(?, '-', REPLACE(LOWER(letter_send_to), ' ', '')) = ?", [$type, $id])
+                ->whereRaw("CONCAT(CAST(? AS TEXT), '-', REPLACE(LOWER(letter_send_to), ' ', '')) = CAST(? AS TEXT)", [$type, $id])
                 ->first()
                 ->letter_send_to ?? 'Tidak diketahui';
-    
+        
             $data = Letter::where('type', $type)
-                ->whereRaw("CONCAT(?, '-', REPLACE(LOWER(letter_from), ' ', '')) = ?", [$type, $id])
+                ->whereRaw("CONCAT(CAST(? AS TEXT), '-', REPLACE(LOWER(letter_from), ' ', '')) = ?", [$type, $id])
                 ->paginate(10)
                 ->onEachSide(5);
-    
+        
             if ($data->count() == 0) {
                 $data = Letter::where('type', $type)
-                    ->whereRaw("CONCAT(?, '-', REPLACE(LOWER(letter_send_to), ' ', '')) = ?", [$type, $id])
+                    ->whereRaw("CONCAT(CAST(? AS TEXT), '-', REPLACE(LOWER(letter_send_to), ' ', '')) = ?", [$type, $id])
                     ->paginate(10)
                     ->onEachSide(5);
             }
-        }
+        }        
     
         return view('letter.history-detail', compact(['data', 'title']));
     }
