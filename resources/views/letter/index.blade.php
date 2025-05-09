@@ -7,103 +7,98 @@
 @section('content')
     <div class="card">
         <div class="card-body">
+            <form method="GET" onchange="this.submit()" action="{{ route('letter.index') }}" class="d-flex justify-content-between flex-wrap gap-3 mb-3 align-items-end">
+                <div class="d-flex col-md-7 flex-wrap gap-3">
+                    <select name="filterTipe" class="form-control" style="max-width: 150px" >
+                        <option value="">Semua Tipe</option>
+                        <option value="masuk" {{ request('filterTipe') == 'masuk' ? 'selected' : '' }}>Surat Masuk</option>
+                        <option value="keluar" {{ request('filterTipe') == 'keluar' ? 'selected' : '' }}>Surat Keluar</option>
+                    </select>
+                
+                    <select name="filterBulan" class="form-control" style="max-width: 150px" >
+                        <option value="">Semua Bulan</option>
+                        @foreach (range(1, 12) as $bulan)
+                            <option value="{{ str_pad($bulan, 2, '0', STR_PAD_LEFT) }}"
+                                {{ request('filterBulan') == str_pad($bulan, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::create()->month($bulan)->translatedFormat('F') }}
+                            </option>
+                        @endforeach
+                    </select>
+                
+                    <select name="filterTahun" class="form-control" style="max-width: 150px" >
+                        <option value="">Semua Tahun</option>
+                        @for ($i = date('Y'); $i >= 2020; $i--)
+                            <option value="{{ $i }}" {{ request('filterTahun') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                        @endfor
+                    </select>
+                </div>
+                
+                <input type="text" placeholder="Cari..." value="{{ request('search') }}" class="form-control" style="max-width: 200px" name="search">
+            </form>
             <div class="table-responsive">
-                {{ $dataTable->table() }}
+                <table class="table">
+                    <thead>
+                        <tr class="text-center" style="background-color: #696cff;">
+                            <th style="width: 5%; border-top-left-radius: 8px" class="text-white">Nama</th>
+                            <th class="text-white">Tipe</th>
+                            <th class="text-white">Tanggal</th>
+                            <th class="text-white">Asal</th>
+                            <th class="text-white">Tujuan</th>
+                            <th class="text-white">Perihal</th>
+                            <th class="text-white">QR</th>
+                            <th style="border-top-right-radius: 8px" class="text-white">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($data as $item)
+                        <tr>
+                            {{-- <td class="text-center">{{ $loop->iteration }}</td> --}}
+                            <td>{{ $item->letter_name }}</td>
+                            <td>{!! $item->type == 'masuk' ? '<div class="badge bg-label-success">Surat Masuk</div>' : '<div class="badge bg-label-info">Surat Keluar</div>' !!}</td>
+                            <td class="text-end text-nowrap">
+                                {{ date('d-m-Y | H:i', strtotime($item->letter_date)) }}
+                            </td>
+                            <td>
+                                {{ $item->letter_from }}
+                            </td>
+                            <td>
+                                {{ $item->letter_send_to }}
+                            </td>
+                            <td>{{ $item->letter_subject }}</td>
+                            <td class="text-center p-0">
+                                @if($item->link_qr)
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode($item->link_qr) }}" 
+                                         width="120" height="120" 
+                                         alt="QR Code"
+                                         class="img-thumbnail">
+                                @else
+                                    <span class="text-muted">Tidak ada QR</span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href={{ 'https://okqbhupontsalxjdbdyy.supabase.co/storage/v1/object/public/siar/upload/' . $item->letter_path }} target="_blank" class="btn btn-info">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                    <a href={{ route('letter.form', $item->id) }} class="btn btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action={{ route('letter.destroy', $item->id) }} method="POST" onsubmit="return confirm(\'Apakah Anda yakin ingin menghapus pengguna ini?\');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                            <td colspan="3">Tidak ada data</td>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(function () {
-                $('#custom-filter').html(`
-                    <div class="d-flex gap-2 align-items-center">
-                        <select id="filterTipe" class="select2 form-select" style="max-width: 150px;">
-                            <option value="">Semua Tipe</option>
-                            <option value="masuk">Surat Masuk</option>
-                            <option value="keluar">Surat Keluar</option>
-                        </select>
-    
-                        <select id="filterBulan" class="select2 form-select" style="max-width: 150px;">
-                            <option value="">Semua Bulan</option>
-                            <option value="01">Januari</option>
-                            <option value="02">Februari</option>
-                            <option value="03">Maret</option>
-                            <option value="04">April</option>
-                            <option value="05">Mei</option>
-                            <option value="06">Juni</option>
-                            <option value="07">Juli</option>
-                            <option value="08">Agustus</option>
-                            <option value="09">September</option>
-                            <option value="10">Oktober</option>
-                            <option value="11">November</option>
-                            <option value="12">Desember</option>
-                        </select>
-    
-                        <select id="filterTahun" class="select2 form-select" style="max-width: 150px;">
-                            <option value="">Semua Tahun</option>
-                            @for ($i = date('Y'); $i >= 2020; $i--)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                `);
-    
-                const table = $('#letters-table').DataTable();
-    
-                function applyFilter() {
-                    const tipe = $('#filterTipe').val();
-                    const bulan = $('#filterBulan').val();
-                    const tahun = $('#filterTahun').val();
-    
-                    // Reset semua pencarian kolom
-                    table.columns().search('');
-    
-                    if (tipe) {
-                        table.column(1).search(tipe); // Pastikan kolom 1 adalah kolom "tipe"
-                    }
-    
-                    if (tahun || bulan) {
-                        const regex = tahun && bulan
-                            ? `^${tahun}-${bulan}`     // Format YYYY-MM
-                            : tahun
-                            ? `^${tahun}`
-                            : `-${bulan}-`;            // Format -MM- untuk bulan saja
-    
-                        table.column(2).search(regex, true, false); // Pastikan kolom 2 adalah kolom tanggal
-                    }
-    
-                    table.draw();
-                }
-    
-                $('#filterTipe, #filterBulan, #filterTahun').on('change', applyFilter);
-            }, 500);
-        });
-
-        function confirmDelete(id) {
-            Swal.fire({
-                title: 'Yakin ingin menghapus?',
-                text: 'Data yang dihapus tidak dapat dikembalikan!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const form = document.getElementById('deleteForm' + id);
-                    if (form) {
-                        form.submit();
-                    } else {
-                        console.error('Form tidak ditemukan untuk ID:', id);
-                    }
-                }
-            });
-        }
-    </script>
-    
-@endpush

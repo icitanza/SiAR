@@ -38,12 +38,12 @@
         <div class="text-truncate">Laporan</div>
       </a>
     </li>
-    <li class="menu-item {{ request()->routeIs('qr.index') ? 'active' : '' }}">
+    {{-- <li class="menu-item {{ request()->routeIs('qr.index') ? 'active' : '' }}">
       <a href="{{ route('qr.index') }}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-qr"></i>
         <div class="text-truncate">Scan QR</div>
       </a>
-    </li>
+    </li> --}}
     {{-- @endhasPermission --}}
 
     {{-- @hasPermission('VIEW_INVENTARIS')

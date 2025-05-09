@@ -49,7 +49,7 @@
                             </td>
                             <td>
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href={{ asset('storage/' . $item->letter_path) }} target="_blank" class="btn btn-info">
+                                    <a href={{ 'https://okqbhupontsalxjdbdyy.supabase.co/storage/v1/object/public/siar/upload/' . $item->letter_path }} target="_blank" class="btn btn-info">
                                         <i class="fas fa-file-pdf"></i>
                                     </a>
                                     <a href={{ route('letter.form', $item->id) }} class="btn btn-warning">

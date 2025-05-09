@@ -21,16 +21,43 @@ class LetterController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(LettersDataTable $dataTable)
+    public function index(Request $request)
     {
-        $data = Letter::paginate(10);
-
-        $totalMasuk = Letter::where('type', 'masuk')->count();
-        $totalKeluar = Letter::where('type', 'keluar')->count();
-
-        // return view('letter.index', compact('data'));
-        return $dataTable->render('letter.index', compact(['data', 'totalMasuk', 'totalKeluar']));
+        $query = Letter::query();
+    
+        // Filter berdasarkan tipe
+        if ($request->filled('filterTipe')) {
+            $query->where('type', $request->filterTipe);
+        }
+    
+        // Filter berdasarkan bulan
+        if ($request->filled('filterBulan')) {
+            $query->whereRaw('EXTRACT(MONTH FROM letter_date) = ?', [$request->filterBulan]);
+        }
+    
+        // Filter berdasarkan tahun
+        if ($request->filled('filterTahun')) {
+            $query->whereRaw('EXTRACT(YEAR FROM letter_date) = ?', [$request->filterTahun]);
+        }
+    
+        // Filter berdasarkan pencarian
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('letter_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('letter_subject', 'like', '%' . $request->search . '%')
+                    ->orWhere('letter_from', 'like', '%' . $request->search . '%')
+                  ->orWhere('letter_send_to', 'like', '%' . $request->search . '%');
+            });
+        }
+    
+        // Ambil data dengan pagination
+        $data = $query->paginate(10);
+    
+        // Mengirim data ke view
+        return view('letter.index', compact('data'));
+        // return $dataTable->render('letter.index', compact(['data', 'totalMasuk', 'totalKeluar']));
     }
+    
 
     public function form(Request $request, $id = null)
     {

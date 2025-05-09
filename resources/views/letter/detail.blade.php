@@ -61,7 +61,7 @@
                                 <td>{{ $letter->letter_subject }}</td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
-                                        <a href={{ asset('storage/' . $letter->letter_path) }} target="_blank" class="btn btn-info">
+                                        <a href={{ 'https://okqbhupontsalxjdbdyy.supabase.co/storage/v1/object/public/siar/upload/' . $letter->letter_path }} target="_blank" class="btn btn-info">
                                             <i class="fas fa-file-pdf"></i>
                                         </a>
                                         <a href={{ route('letter.form', $letter->id) }} class="btn btn-warning">
