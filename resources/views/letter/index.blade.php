@@ -7,6 +7,7 @@
 @section('content')
     <div class="card">
         <div class="card-body">
+            <a href="{{ route('letter.form') }}" class="btn btn-primary mb-3"><i class="fas fa-plus"></i> Tambah</a>
             <form method="GET" onchange="this.submit()" action="{{ route('letter.index') }}" class="d-flex justify-content-between flex-wrap gap-3 mb-3 align-items-end">
                 <div class="d-flex col-md-7 flex-wrap gap-3">
                     <select name="filterTipe" class="form-control" style="max-width: 150px" >

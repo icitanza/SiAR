@@ -61,7 +61,7 @@ class SupabaseService
     public function getFileUrl($filePath)
     {
         $filePath = trim($filePath, '/');
-        return "{$this->url}/storage/v1/object/public/{$this->bucket}/{$filePath}";
+        return "{$this->url}/storage/v1/object/public/{$this->bucket}/upload/{$filePath}";
     }
 
     // Hapus file dari Supabase

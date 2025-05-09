@@ -351,9 +351,10 @@ class LetterController extends Controller
         // Tentukan nama file untuk didownload
         $fileName = basename($letter->letter_path);
     
-        return response($fileContents)
-            ->header('Content-Type', mime_content_type($fileUrl))
-            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+        // Kembalikan response stream untuk mendownload file
+        return response()->streamDownload(function () use ($fileContents) {
+            echo $fileContents;
+        }, $fileName);
     }
     
 
