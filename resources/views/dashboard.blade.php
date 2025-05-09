@@ -73,7 +73,7 @@
     let chart; // Dideklarasikan di luar agar bisa diakses global
 
     function loadChart(tahun) {
-        fetch(`/api/chart_data_bulanan?tahun=${tahun}`)
+        fetch(`/chart_data?tahun=${tahun}`)
             .then(res => res.json())
             .then(data => {
 
