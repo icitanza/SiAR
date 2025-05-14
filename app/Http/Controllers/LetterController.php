@@ -44,6 +44,7 @@ class LetterController extends Controller
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('letter_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('no_letter', 'like', '%' . $request->search . '%')
                     ->orWhere('letter_subject', 'like', '%' . $request->search . '%')
                     ->orWhere('letter_from', 'like', '%' . $request->search . '%')
                   ->orWhere('letter_send_to', 'like', '%' . $request->search . '%');
@@ -86,6 +87,7 @@ class LetterController extends Controller
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('letter_from', 'like', '%' . $request->search . '%')
+                  ->orWhere('no_letter', 'like', '%' . $request->search . '%')
                   ->orWhere('letter_send_to', 'like', '%' . $request->search . '%');
             });
         }        
@@ -145,6 +147,7 @@ class LetterController extends Controller
             'letter_from' => $request->letter_from,
             'letter_send_to' => $request->letter_send_to,
             'letter_subject' => $request->letter_subject,
+            'no_letter' => $request->no_letter,
             'letter_path' => $filePath,
         ]);
 
@@ -179,6 +182,7 @@ class LetterController extends Controller
             $query->where(function ($q) use ($request) {
                 $q->where('letter_name', 'like', '%' . $request->search . '%')
                     ->orWhere('letter_subject', 'like', '%' . $request->search . '%')
+                    ->orWhere('no_letter', 'like', '%' . $request->search . '%')
                     ->orWhere('letter_from', 'like', '%' . $request->search . '%')
                   ->orWhere('letter_send_to', 'like', '%' . $request->search . '%');
             });
@@ -318,6 +322,7 @@ class LetterController extends Controller
             'letter_from' => $request->letter_from,
             'letter_send_to' => $request->letter_send_to,
             'letter_subject' => $request->letter_subject,
+            'no_letter' => $request->no_letter,
             'letter_path' => $filePath,
             'link_qr' => url('/qr/' . $id),
         ]);

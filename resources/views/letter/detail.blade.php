@@ -41,6 +41,7 @@
                         <tr class="text-center" style="background-color: #696cff;  ">
                             <th style="border-top-left-radius: 8px; width: 5%;" class="text-white">No</th>
                             <th class="text-white">Nama</th>
+                            <th class="text-white">No Surat</th>
                             <th class="text-white">Tanggal</th>
                             {!! $type == 'masuk' ? '<th class="text-white">Asal</th>' : '<th class="text-white">Tujuan</th>' !!}
                             {{-- <th class="text-white">Asal</th>
@@ -54,6 +55,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $letter->letter_name }}</td>
+                                <td>{{ $letter->no_letter }}</td>
                                 <td class="text-end text-nowrap">{{ date('d-m-Y | H:i', strtotime($letter->letter_date)) }}</td>
                                 {!! $type == 'masuk' ? '<td>' . $letter->letter_from . '</td>' : '<td>' . $letter->letter_send_to . '</td>' !!}
                                 {{-- <td>{{ $letter->letter_from }}</td>

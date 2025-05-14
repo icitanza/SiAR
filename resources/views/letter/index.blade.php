@@ -41,6 +41,7 @@
                     <thead>
                         <tr class="text-center" style="background-color: #696cff;">
                             <th style="width: 5%; border-top-left-radius: 8px" class="text-white">Nama</th>
+                            <th class="text-white">No Surat</th>
                             <th class="text-white">Tipe</th>
                             <th class="text-white">Tanggal</th>
                             <th class="text-white">Asal</th>
@@ -55,6 +56,7 @@
                         <tr>
                             {{-- <td class="text-center">{{ $loop->iteration }}</td> --}}
                             <td>{{ $item->letter_name }}</td>
+                            <td>{{ $item->no_letter }}</td>
                             <td>{!! $item->type == 'masuk' ? '<div class="badge bg-label-success">Surat Masuk</div>' : '<div class="badge bg-label-info">Surat Keluar</div>' !!}</td>
                             <td class="text-end text-nowrap">
                                 {{ date('d-m-Y | H:i', strtotime($item->letter_date)) }}

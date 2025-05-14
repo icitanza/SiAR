@@ -48,6 +48,14 @@
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <div class="mb-3">
+                            <label for="no_letter" class="form-label">NOMOR SURAT</label>
+                            <input type="text" name="no_letter" class="form-control" value="{{ $data->no_letter ?? '' }}"  placeholder="Nomor surat">
+                            @error('no_letter')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
         
                     <div class="col-md-6">

@@ -78,6 +78,7 @@
                     <thead>
                         <tr class="text-center" style="background-color: #696cff;  ">
                             <th style="border-top-left-radius: 8px;" class="text-white">Tipe</th>
+                            <th class="text-white">No Surat</th>
                             <th class="text-white">Asal</th>
                             <th class="text-white">Tujuan</th>
                             <th class="text-white">Jumlah</th>
@@ -88,7 +89,9 @@
                         @forelse($grouped as $key => $letter)
                             <tr>
                                 <td>{!! $letter->first()->type == 'masuk' ? '<div class="badge bg-label-success">Surat Masuk</div>' : '<div class="badge bg-label-info">Surat Keluar</div>' !!}</td>
-                            
+                                <td>
+                                    {{ $letter->first()->no_letter }}
+                                </td>
                                 <td>
                                     {{ $letter->first()->type === 'masuk' ? $letter->first()->letter_from : 'SMKN 2 BANGKALAN' }}
                                 </td>
